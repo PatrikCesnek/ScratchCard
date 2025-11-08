@@ -12,13 +12,17 @@ actor VersionService: VersionServiceProtocol {
         case badResponse
         case invalidJSON
         case missingField
+        case invalidURL
         var errorDescription: String? { "Invalid API response." }
     }
 
     func fetchVersion(for code: String) async throws -> String {
-        var components = URLComponents(string: "https://api.o2.sk/version")!
-        components.queryItems = [URLQueryItem(name: "code", value: code)]
-        let (data, response) = try await URLSession.shared.data(from: components.url!)
+        var components = URLComponents(string: "https://api.o2.sk/version")
+        components?.queryItems = [URLQueryItem(name: "code", value: code)]
+        guard let url = components?.url else {
+            throw Error.invalidURL
+        }
+        let (data, response) = try await URLSession.shared.data(from: url)
         guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
             throw Error.badResponse
         }
@@ -33,4 +37,3 @@ actor VersionService: VersionServiceProtocol {
 protocol VersionServiceProtocol: Sendable {
     func fetchVersion(for code: String) async throws -> String
 }
-
