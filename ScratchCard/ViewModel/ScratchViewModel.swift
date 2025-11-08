@@ -11,6 +11,7 @@ import Foundation
 final class ScratchViewModel {
     var isScratching = false
     var card: ScratchCardViewModel
+    var code: String?
 
     init(card: ScratchCardViewModel) {
         self.card = card
@@ -29,7 +30,8 @@ final class ScratchViewModel {
                 await MainActor.run { self.card.reset() }
                 return
             }
-            let code = UUID().uuidString
+            code = UUID().uuidString
+            guard let code = code else { return }
             await MainActor.run {
                 self.card.scratched(with: code)
                 self.isScratching = false

@@ -10,11 +10,13 @@ import SwiftUI
 struct ScratchView: View {
     @Environment(\.dismiss)
     private var dismiss
-    
-    @State private var scratchVM: ScratchViewModel
 
-    init(cardVM: ScratchCardViewModel) {
+    @State private var scratchVM: ScratchViewModel
+    @Binding var path: NavigationPath
+
+    init(cardVM: ScratchCardViewModel, path: Binding<NavigationPath>) {
         _scratchVM = State(initialValue: ScratchViewModel(card: cardVM))
+        _path = path
     }
 
     var body: some View {
@@ -30,63 +32,62 @@ struct ScratchView: View {
                             .scaledToFit()
                             .frame(width: 100, height: 100)
                             .symbolEffect(.variableColor.iterative.reversing)
-                            .transition(.scale.combined(with: .opacity))
-                            .animation(.easeInOut(duration: 0.3), value: scratchVM.isScratching)
 
                         Text("Scratching…")
                             .font(.headline)
                             .foregroundStyle(.secondary)
-                            .transition(.opacity)
                     } else if case .scratched(let code) = scratchVM.card.state {
                         Image(systemName: "checkmark.circle.fill")
                             .resizable()
                             .scaledToFit()
                             .frame(width: 80, height: 80)
                             .foregroundStyle(.green)
-                            .transition(.scale.combined(with: .opacity))
-                            .animation(.easeInOut(duration: 0.3), value: scratchVM.card.state)
-
                         Text("Scratch successful!")
                             .font(.headline)
                             .foregroundStyle(.green)
-                            .transition(.opacity)
                         Text("Your code: \(code)")
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                            .transition(.opacity)
                     } else {
                         Text("Scratch screen")
                             .font(.title2)
-                            .transition(.opacity)
                     }
                 }
                 .padding()
             }
             .frame(height: 200)
-            .animation(.easeInOut, value: scratchVM.isScratching)
-            .animation(.easeInOut, value: scratchVM.card.state)
 
-            Button {
-                scratchVM.start()
-            } label: {
-                Text(scratchVM.isScratching ? "Scratching…" : "Scratch")
-                    .frame(maxWidth: .infinity)
+            if scratchVM.code != nil {
+                Button("Activate") {
+                    path.append("activate")
+                }
+                .frame(maxWidth: .infinity)
+                .buttonStyle(.borderedProminent)
+            } else {
+                Button {
+                    scratchVM.start()
+                } label: {
+                    Text(scratchVM.isScratching ? "Scratching…" : "Scratch")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(scratchVM.isScratching)
             }
-            .buttonStyle(.borderedProminent)
-            .disabled(scratchVM.isScratching || (scratchVM.card.state == .scratched(code: "")))
 
             Spacer()
         }
         .padding()
         .navigationTitle("Scratch")
-        .onDisappear {
-            scratchVM.cancel()
-        }
+        .onDisappear { scratchVM.cancel() }
     }
 }
 
 #Preview {
-    NavigationStack {
-        ScratchView(cardVM: ScratchCardViewModel())
+    @Previewable @State var path = NavigationPath()
+    NavigationStack(path: $path) {
+        ScratchView(
+            cardVM: ScratchCardViewModel(),
+            path: $path
+        )
     }
 }

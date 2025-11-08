@@ -23,4 +23,3 @@ final class ScratchCardViewModel {
     func scratched(with code: String) { state = .scratched(code: code) }
     func activated(with code: String) { state = .activated(code: code) }
 }
-

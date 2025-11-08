@@ -7,26 +7,39 @@
 
 import SwiftUI
 
+import SwiftUI
+
 struct ContentView: View {
     @State private var cardVM = ScratchCardViewModel()
+    @State private var path = NavigationPath()
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             VStack(spacing: 20) {
                 ScratchCardStateView(state: cardVM.state)
                     .padding()
 
-                NavigationLink("Go to Scratch Screen") {
-                    ScratchView(cardVM: cardVM)
+                NavigationLink(value: "scratch") {
+                    Text("Go to Scratch Screen")
                 }
 
-                NavigationLink("Go to Activation Screen") {
-                    ActivationView(cardVM: cardVM)
+                NavigationLink(value: "activate") {
+                    Text("Go to Activation Screen")
                 }
 
                 Spacer()
             }
             .navigationTitle("Scratch Card")
+            .navigationDestination(for: String.self) { route in
+                switch route {
+                case "scratch":
+                    ScratchView(cardVM: cardVM, path: $path)
+                case "activate":
+                    ActivationView(cardVM: cardVM, path: $path)
+                default:
+                    EmptyView()
+                }
+            }
             .padding()
         }
     }
