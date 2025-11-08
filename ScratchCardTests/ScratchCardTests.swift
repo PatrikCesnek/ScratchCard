@@ -9,7 +9,8 @@ import Testing
 @testable import ScratchCard
 
 // MARK: - Tests
-struct ScratchCardDemoTests {
+@Suite("Scratch Card Tests")
+struct ScratchCardTests {
 
     @Test("ScratchCardViewModel: state transitions")
     func testStateTransitions() async {
@@ -46,7 +47,7 @@ struct ScratchCardDemoTests {
         try await Task.sleep(for: .milliseconds(300))
 
         await MainActor.run {
-            #expect(card.state == .activated(code: "ABC"))
+            #expect(card.state == .activated(code: "ABC"), "Card should be activated after this")
             #expect(viewModel.errorMessage == nil)
         }
     }
