@@ -31,9 +31,7 @@ final class ActivationViewModel {
         Task.detached {
             do {
                 let ios = try await self.service.fetchVersion(for: code)
-                // This has been commented out because I currently don't have any device able to run iOS 6, even my Xcode shows iOS 15 as lowest deployment target
-//                if Double(ios) ?? 0 > 6.1 { // TODO: - Set iOS version to lower
-                if Double(ios) ?? 0 > 26.0 { // TODO: - Set to 18
+                if Double(ios) ?? 0 > 6.1 {
                     await MainActor.run {
                         self.card.activated(with: code)
                         self.isActivating = false
